@@ -1,4 +1,5 @@
 
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +8,10 @@ from typing import List, Dict, Any
 import plotly.graph_objects as go
 
 app = FastAPI(title="Downside Hedge Calculator")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
 templates = Jinja2Templates(directory="templates")
 
 def _to_float(x, default=0.0):
@@ -105,7 +109,7 @@ def render_rows(request: Request, ctx: Dict[str, Any]):
 
 def render_results(request: Request, ctx: Dict[str, Any], solutions):
     chart_html = figure_html(ctx, solutions)
-    return templates.TemplateResponse("_results.html", {"request": request, "inputs": ctx, "solutions": solutions, "chart_html": chart_html})
+    return templates.TemplateResponse("_results.html", {"request": request, "inputs": ctx, **ctx, "solutions": solutions, "chart_html": chart_html})
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
