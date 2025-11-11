@@ -1,0 +1,57 @@
+
+<div id="results-container" class="card">
+  <h3>Quantities & Cost</h3>
+  {% if solutions|length == 0 %}
+    <div class="small">Fill in option rows and click <b>Calculate</b> to see results.</div>
+  {% else %}
+    <div class="small" style="margin-bottom:8px;">
+      Notional: <b>{{ currency }}{{ '{:,.0f}'.format(notional|float) }}</b>
+      • Multiplier: <b>{{ '{:,.0f}'.format(multiplier|float) }}</b>
+      • Spot: <b>{{ '{:,.2f}'.format(spot|float) }}</b>
+    </div>
+    <div id="results-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Expiry</th>
+            <th>Strike</th>
+            <th>Ask</th>
+            <th>Premium</th>
+            <th>Notional/Contract</th>
+            <th>Qty (100%)</th>
+            <th>Qty (50%)</th>
+            <th>Qty (10%)</th>
+            <th>Cost (100%)</th>
+            <th>Cost (50%)</th>
+            <th>Cost (10%)</th>
+            <th>% from Spot</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in solutions %}
+          <tr>
+            <td>{{ s.expiry }}</td>
+            <td style="text-align:right">{{ '{:,.2f}'.format(s.strike) }}</td>
+            <td style="text-align:right">{{ '{:,.2f}'.format(s.ask) }}</td>
+            <td style="text-align:right">{{ '{:,.2f}'.format(s.premium) }}</td>
+            <td style="text-align:right">{{ '{:,.0f}'.format(s.per_contract_notional) }}</td>
+            <td style="text-align:right">
+              {{ '{:,.3f}'.format(s.qty100) }}
+              <span class="small">(ceil {{ s.qty100_ceil }}, floor {{ s.qty100_floor }})</span>
+            </td>
+            <td style="text-align:right">{{ '{:,.3f}'.format(s.qty50) }}</td>
+            <td style="text-align:right">{{ '{:,.3f}'.format(s.qty10) }}</td>
+            <td style="text-align:right">{{ currency }}{{ '{:,.2f}'.format(s.cost100) }}</td>
+            <td style="text-align:right">{{ currency }}{{ '{:,.2f}'.format(s.cost50) }}</td>
+            <td style="text-align:right">{{ currency }}{{ '{:,.2f}'.format(s.cost10) }}</td>
+            <td><span class="badge">{{ '%+.2f%%'|format(s.atmPct) }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+  <div class="card" style="margin-top:12px;">
+    {{ chart_html | safe }}
+  </div>
+</div>

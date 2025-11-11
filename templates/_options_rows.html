@@ -1,0 +1,34 @@
+
+<div id="options-rows-wrapper" class="card">
+  <div class="row header">
+    <div>Expiry</div>
+    <div>Strike</div>
+    <div>Ask</div>
+    <div>Premium (auto)</div>
+    <div></div>
+  </div>
+  <div id="options-rows">
+    {% for i, o in enumerate(options) %}
+      <div class="row opt">
+        <input type="date" name="expiry[]" value="{{ o.expiry }}"/>
+        <input type="number" step="0.01" name="strike[]" value="{{ '%.2f'|format(o.strike) if o.strike else '' }}"/>
+        <input type="number" step="0.01" name="ask[]" value="{{ '%.2f'|format(o.ask) if o.ask else '' }}"/>
+        <input type="number" step="0.01" name="premium_display[]" readonly value="{{ '%.2f'|format(o.premium) if o.premium else '' }}"/>
+        <button class="secondary"
+          hx-post="/"
+          hx-include="#options-form"
+          hx-vals='{"action":"remove_row","row_index":"{{ i }}"}'
+          hx-target="#options-rows-wrapper"
+          hx-swap="outerHTML">×</button>
+      </div>
+    {% endfor %}
+  </div>
+  <div style="margin-top:8px;">
+    <button class="secondary"
+      hx-post="/"
+      hx-include="#options-form"
+      hx-vals='{"action":"add_row"}'
+      hx-target="#options-rows-wrapper"
+      hx-swap="outerHTML">+ Add Row</button>
+  </div>
+</div>

@@ -2,73 +2,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Downside Hedge Calculator</title>
+  <title>Downside Hedge Calculator (Python-First)</title>
   <link rel="stylesheet" href="/static/css/style.css">
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
   <div class="container">
     <h1>Downside Hedge Calculator</h1>
+    <form id="options-form">
+      <div class="grid">
+        <div class="left">
+          <div class="card">
+            <div class="row"><label>Currency</label><input name="currency" value="{{ currency }}"/></div>
+            <div class="row"><label>Index</label><input name="index" value="{{ index }}"/></div>
+            <div class="row"><label>Multiplier</label><input name="multiplier" type="number" step="1" value="{{ multiplier }}"/></div>
+            <div class="row"><label>Notional Exposure</label><input name="notional" type="number" step="1" value="{{ notional }}"/></div>
+            <div class="row"><label>Market Price (Spot)</label><input name="spot" type="number" step="0.01" value="{{ spot }}"/></div>
+          </div>
 
-    <section class="grid">
-      <div class="left">
-        <div class="card">
-          <div class="row">
-            <label>Currency</label>
-            <input id="currency" value="£" maxlength="3"/>
+          <div id="options-rows-wrapper" 
+               hx-post="/" 
+               hx-trigger="keyup changed delay:300ms from:#options-form" 
+               hx-target="#options-rows-wrapper" hx-swap="outerHTML">
+            {% include "_options_rows.html" %}
           </div>
-          <div class="row">
-            <label>Index</label>
-            <input id="index" value="FTSE 100" />
-          </div>
-          <div class="row">
-            <label>Multiplier</label>
-            <input id="multiplier" type="number" step="1" value="10" />
-          </div>
-          <div class="row">
-            <label>Notional Exposure</label>
-            <input id="notional" type="number" step="1" value="100000" />
-          </div>
-          <div class="row">
-            <label>Market Price</label>
-            <input id="spot" type="number" step="0.01" value="9500" />
+
+          <div class="actions">
+            <button 
+              hx-post="/" 
+              hx-include="#options-form"
+              hx-vals='{"action":"calculate"}'
+              hx-target="#results-container" 
+              hx-swap="outerHTML">Calculate</button>
+            <button type="reset" class="secondary" onclick="window.location.reload()">Reset</button>
           </div>
         </div>
 
-        <div class="card">
-          <div class="row header">
-            <div>Expiry</div>
-            <div>Strike</div>
-            <div>Ask</div>
-            <div>Premium (auto)</div>
-            <div></div>
+        <div class="right">
+          <div id="results-container" class="card">
+            {% set solutions = [] %}
+            {% include "_results.html" %}
           </div>
-          <div id="options-rows"></div>
-          <button id="add-row" class="secondary">+ Add Row</button>
-        </div>
-
-        <div class="actions">
-          <button id="calculate">Calculate</button>
-          <button id="reset" class="secondary">Reset</button>
-        </div>
-
-        <div id="results" class="card" style="display:none;">
-          <h3>Quantities & Cost</h3>
-          <div id="results-table"></div>
-        </div>
-
-      </div>
-
-      <div class="right">
-        <div class="card">
-          <div id="chart" style="height:540px;"></div>
         </div>
       </div>
-    </section>
+    </form>
   </div>
-
-<script src="/static/js/app.js"></script>
 </body>
 </html>
