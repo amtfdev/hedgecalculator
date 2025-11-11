@@ -107,9 +107,18 @@ def ctx_defaults():
 def render_rows(request: Request, ctx: Dict[str, Any]):
     return templates.TemplateResponse("_options_rows.html", {"request": request, **ctx})
 
-def render_results(request: Request, ctx: Dict[str, Any], solutions):
-    chart_html = figure_html(ctx, solutions)
-    return templates.TemplateResponse("_results.html", {"request": request, "inputs": ctx, **ctx, "solutions": solutions, "chart_html": chart_html})
+def render_results(request, inputs, solutions):
+    chart_html = figure_html(inputs, solutions)
+    return templates.TemplateResponse(
+        "_results.html",
+        {
+            "request": request,
+            "inputs": inputs,   # keep nested for future-proofing
+            **inputs,           # <-- add this line to expose currency/notional/spot/etc. at top level
+            "solutions": solutions,
+            "chart_html": chart_html,
+        },
+    )
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
