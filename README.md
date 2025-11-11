@@ -1,75 +1,43 @@
 
-# Hedge Calculator – FastAPI + Frontend
+# Downside Hedge Calculator (FastAPI)
 
-Self-contained hedging calculator with a minimal web UI and a JSON API.
+Single-page web app to model protective put hedges for an index exposure.
+- One route: `/`.
+- Add any number of put option candidates (expiry, strike, ask).
+- Premium is auto-filled as `ask × multiplier`.
+- Click **Calculate** to see quantity needed for 100% / 50% / 10% coverage and total cost.
+- Interactive Plotly chart shows time on the x‑axis and price on the y‑axis with vertical expiry markers and strike labels with the % from spot.
+- **Reset** restores a clean starting state and repopulates example rows.
 
-- UI served at `/`
-- API endpoints: `GET /healthz`, `POST /calc`, `POST /export`, `GET /selftest`, `GET /indexes`
-- Pure-Python business logic; parity with the provided sheet/JS app
-- One-command run with Uvicorn
-
-## Quickstart
+## Run locally
 
 ```bash
-python -m venv .venv && . .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn main:app --reload
+# Open http://127.0.0.1:8000/
 ```
 
-Visit http://127.0.0.1:8000/ to use the UI.
+## Azure App Service
 
-## API
+Use either **Procfile** (included) or configure the startup command to:
+```
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+Ensure `requirements.txt` is deployed. The app is static and requires only outbound internet to load Plotly from a CDN.
 
-- **GET `/healthz`** → `{"ok": true}`
-- **GET `/indexes`** → supported index metadata (name, multiplier, currency)
-- **POST `/calc`** → body = `HedgeInputsModel`, returns summary + per-expiry rows
-- **POST `/export`** → body = `{ "inputs": HedgeInputsModel, "notes": str }` returns export payload
-- **GET `/selftest`** → runs lightweight self-tests for invariants and sample cases
+## Notes & Assumptions
 
-### HedgeInputsModel
-
-```jsonc
-{
-  "index": "FTSE100",      // "FTSE100" | "ES" | "SPX" | "Custom"
-  "notional": 2000000,
-  "marketPrice": 9400,
-  "strike": 9000,
-  "multiplier": 10,
-  "feePerContract": 10,
-  "rounding": "round",     // "round" | "ceil" | "floor"
-  "options": [{ "expiry": "2025-12", "offerPts": 163.5 }],
-  "currency": "£"          // "£" or "$"
-}
+- Quantities target a *notional hedge* (not delta): `Qty(100%) = Notional / (Strike × Multiplier)`.
+  - Also shown: `ceil` and `floor` integer contract counts.
+- Costs use premium-per-contract = `ask × multiplier` (currency).
+- **% from spot** = `(strike − spot) / spot`.
+- Only buying puts is modeled.
+- Edge cases to be aware of:
+  - Very deep OTM strikes produce large decimal quantities; use ceil/floor guidance.
+  - Near‑dated expiries may under‑hedge tail moves; costs can read low vs realized protection.
+  - Stale/bad ask quotes will misstate premium/costs.
+  - A different exchange multiplier will change premiums & quantities immediately.
+  - Chart axis is autoscaled; manually widen with more rows if labels overlap.
 ```
 
-### Formulas
-
-- **breakeven** = `(strike - feePerContract) - offerPts`
-- **contracts(raw)** = `notional / (price * multiplier)`
-- **contracts(rounded)** = `round/ceil/floor(raw)`
-
-## Frontend
-
-- Vanilla HTML + JS for speed and zero extra dependencies
-- Add multiple expiries, calculate instantly, and export a JSON snapshot
-
-## Deploy
-
-Use any ASGI host (Uvicorn/Gunicorn+Uvicorn workers, ecs, etc.). For example:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8080
-```
-
-## Notes & Edge Cases
-
-- If `marketPrice` or `multiplier` ≤ 0, contract count becomes 0 (NaN-guard).
-- Rounding mode materially changes notional coverage; check `ceil` vs `floor`.
-- `feePerContract` reduces breakeven and is applied per contract in total cost.
-- Currency symbol is display-only; calculations are unitless.
-- `offerPts` * multiplier = premium per contract.
-- Export payload embeds an ISO UTC timestamp.
-
----
-
-© 2025 Hedge Calculator Example
