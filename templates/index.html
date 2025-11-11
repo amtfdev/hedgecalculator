@@ -4,44 +4,70 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Downside Hedge Calculator (Python-First)</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <title>Downside Hedge Calculator</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
+<section class="section">
   <div class="container">
-    <h1>Downside Hedge Calculator</h1>
+    <h1 class="title is-4">Downside Hedge Calculator</h1>
+
     <form id="options-form">
-      <div class="grid">
-        <div class="left">
+      <div class="columns is-variable is-4">
+        <div class="column is-4">
           <div class="card">
-            <div class="row"><label>Currency</label><input name="currency" value="{{ currency }}"/></div>
-            <div class="row"><label>Index</label><input name="index" value="{{ index }}"/></div>
-            <div class="row"><label>Multiplier</label><input name="multiplier" type="number" step="1" value="{{ multiplier }}"/></div>
-            <div class="row"><label>Notional Exposure</label><input name="notional" type="number" step="1" value="{{ notional }}"/></div>
-            <div class="row"><label>Market Price (Spot)</label><input name="spot" type="number" step="0.01" value="{{ spot }}"/></div>
+            <header class="card-header">
+              <p class="card-header-title">Inputs</p>
+            </header>
+            <div class="card-content">
+              <div class="field">
+                <label class="label">Currency</label>
+                <div class="control"><input class="input" name="currency" value="{{ currency }}"></div>
+              </div>
+              <div class="field">
+                <label class="label">Index</label>
+                <div class="control"><input class="input" name="index" value="{{ index }}"></div>
+              </div>
+              <div class="field">
+                <label class="label">Multiplier</label>
+                <div class="control"><input class="input" type="number" step="1" name="multiplier" value="{{ multiplier }}"></div>
+              </div>
+              <div class="field">
+                <label class="label">Notional Exposure</label>
+                <div class="control"><input class="input" type="number" step="1" name="notional" value="{{ notional }}"></div>
+              </div>
+              <div class="field">
+                <label class="label">Market Price (Spot)</label>
+                <div class="control"><input class="input" type="number" step="0.01" name="spot" value="{{ spot }}"></div>
+              </div>
+            </div>
           </div>
 
-          <div id="options-rows-wrapper" 
-               hx-post="/" 
-               hx-trigger="keyup changed delay:300ms from:#options-form" 
-               hx-target="#options-rows-wrapper" hx-swap="outerHTML">
-            {% include "_options_rows.html" %}
-          </div>
-
-          <div class="actions">
-            <button 
-              hx-post="/" 
+          <div class="mt-4 buttons">
+            <button class="button is-link"
+              hx-post="/"
               hx-include="#options-form"
               hx-vals='{"action":"calculate"}'
-              hx-target="#results-container" 
+              hx-target="#results-container"
               hx-swap="outerHTML">Calculate</button>
-            <button type="reset" class="secondary" onclick="window.location.reload()">Reset</button>
+
+            <button class="button" type="button" onclick="window.location.href='/'">Reset</button>
           </div>
         </div>
 
-        <div class="right">
-          <div id="results-container" class="card">
+        <div class="column">
+          <div id="options-rows-wrapper"
+               hx-post="/"
+               hx-trigger="keyup changed delay:300ms from:#options-form"
+               hx-include="#options-form"
+               hx-vals='{"action":"rows"}'
+               hx-target="#options-rows-wrapper"
+               hx-swap="outerHTML">
+            {% include "_options_rows.html" %}
+          </div>
+
+          <div id="results-container" class="card mt-4">
             {% set solutions = [] %}
             {% include "_results.html" %}
           </div>
@@ -49,5 +75,6 @@
       </div>
     </form>
   </div>
+</section>
 </body>
 </html>
