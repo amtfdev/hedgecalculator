@@ -23,7 +23,18 @@
             <div class="card-content">
               <div class="field">
                 <label class="label">Currency</label>
-                <div class="control"><input class="input" name="currency" value="{{ currency }}"></div>
+                <div class="control">
+                  <div class="select is-fullwidth">
+                    <select name="currency">
+                      {% if currency and (currency not in currencies) %}
+                        <option value="{{ currency }}" selected>{{ currency }}</option>
+                      {% endif %}
+                      {% for c in currencies %}
+                        <option value="{{ c }}" {% if c == currency %}selected{% endif %}>{{ c }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
               </div>
               <div class="field">
                 <label class="label">Index</label>
@@ -45,7 +56,7 @@
           </div>
 
           <div class="mt-4 buttons">
-            <button class="button is-link"
+            <button class="button is-link" type="button"
               hx-post="/"
               hx-include="#options-form"
               hx-vals='{"action":"calculate"}'

@@ -69,7 +69,7 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
             "ask": _to_float(o.get("ask")),
             "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": int(qty100 // 1),
+            "qty100": max(1, int(qty100 // 1)),
             "cost100": cost100,
             "atmPct": atmPct,
         })
@@ -122,7 +122,14 @@ def figure_html(inputs: Dict[str, Any], solutions: List[Dict[str, Any]]) -> str:
     return fig.to_html(full_html=False, include_plotlyjs="cdn", config={"displaylogo": False, "responsive": True})
 
 def ctx_defaults():
-    return {"currency": "", "index": "", "multiplier": "", "notional": "", "spot": "", "options": []}
+    return {
+        "currency": "",
+        "index": "",
+        "multiplier": "",
+        "notional": "",
+        "spot": "",
+        "options": [],
+        "currencies": ["GBP", "USD", "EUR", "JPY", "CHF"]}
 
 def render_rows(request: Request, ctx: Dict[str, Any]):
     return templates.TemplateResponse("_options_rows.html", {"request": request, **ctx})
@@ -149,7 +156,7 @@ async def get_index(request: Request):
 async def post_index(request: Request):
     form = await request.form()
     action = form.get("action", "rows")
-    ctx = {
+    ctx = {**ctx_defaults(),
         "currency": form.get("currency", ""),
         "index": form.get("index", ""),
         "multiplier": form.get("multiplier", ""),
