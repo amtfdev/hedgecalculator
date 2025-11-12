@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import List, Dict, Any
 import plotly.graph_objects as go
+import datetime as dt
 
 app = FastAPI(title="Downside Hedge Calculator")
 
@@ -36,6 +37,15 @@ def parse_options(form: Any) -> List[Dict[str, Any]]:
         f = _to_float(fee_lot[i]) if i < len(fee_lot) else 0.0
         options.append({"expiry": e, "strike": k, "ask": a, "fee_lot": f})
     return options
+
+def _parse_expiry(exp_str: str):
+    try:
+        return dt.datetime.fromisoformat(exp_str).date()
+    except Exception:
+        try:
+            return dt.datetime.strptime(exp_str, "%Y-%m-%d").date()
+        except Exception:
+            return None
 
 def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -71,7 +81,9 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
 def figure_html(inputs: Dict[str, Any], solutions: List[Dict[str, Any]]) -> str:
     fig = go.Figure()
     if solutions:
-        x = [s["expiry"] for s in solutions]
+        x_start = dt.date.today()
+        x = [d for d in (_parse_expiry(s["expiry"]) for s in solutions)]
+        x_end = max(x + [x_start])
         y = [s["strike"] for s in solutions]
         spot = _to_float(inputs.get("spot"))
         if y:
