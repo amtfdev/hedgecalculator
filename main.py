@@ -28,7 +28,7 @@ def parse_options(form: Any) -> List[Dict[str, Any]]:
     ask = form.getlist("ask[]")
     fee_lot = form.getlist("fee_lot[]")
     options: List[Dict[str, Any]] = []
-    n = max(len(exp), len(strike), len(ask))
+    n = max(len(exp), len(strike), len(ask), len(fee_lot))
     for i in range(n):
         e = exp[i] if i < len(exp) else ""
         k = _to_float(strike[i]) if i < len(strike) else 0.0
@@ -51,7 +51,7 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
         premium_contract = (ask * multiplier) if multiplier else 0.0
         per_contract_notional = strike * multiplier if multiplier else 0.0
         qty100 = (notional / per_contract_notional) if per_contract_notional else 0.0
-        cost100 = qty100(premium_contract + fee_lot)
+        cost100 = qty100 * (premium_contract + fee_lot)
         atmPct = ((strike - spot) / spot * 100) if spot else 0.0
         out.append({
             "expiry": o["expiry"],

@@ -21,7 +21,6 @@
             <td><input class="input" type="date" name="expiry[]" value="{{ o.expiry }}"></td>
             <td><input class="input has-text-right" type="number" step="0.01" name="strike[]" value="{{ o.strike if o.strike else '' }}"></td>
             <td><input class="input has-text-right" type="number" step="0.01" name="ask[]" value="{{ o.ask if o.ask else '' }}"></td>
-            <!-- Make this editable if Fee/Lot is user-entered; remove readonly -->
             <td><input class="input has-text-right" type="number" step="0.01" name="fee_lot[]" value="{{ o.fee_lot if o.fee_lot else '' }}"></td>
             <td class="has-text-centered">
               <button class="button is-small"
