@@ -69,9 +69,7 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
             "ask": _to_float(o.get("ask")),
             "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": qty100,
-            "qty100_floor": int(qty100 // 1),
-            "qty100_ceil": int(qty100) + (0 if abs(qty100 - int(qty100)) < 1e-9 else 1),
+            "qty100": int(qty100 // 1),
             "cost100": cost100,
             "atmPct": atmPct,
         })
