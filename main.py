@@ -74,6 +74,19 @@ def figure_html(inputs: Dict[str, Any], solutions: List[Dict[str, Any]]) -> str:
         x = [s["expiry"] for s in solutions]
         y = [s["strike"] for s in solutions]
         spot = _to_float(inputs.get("spot"))
+        if y:
+            y_min_strike = min(y)
+            lower_pad = max(1.0, 0.01 * y_min_strike)
+            upper_pad = max(1.0, 0.01 * (spot if spot else y_min_strike))
+            if spot:
+                y_min = y_min_strike - lower_pad
+                y_max = spot + upper_pad
+                if y_max <= y_min:
+                    y_max = max(y) + upper_pad
+            else:
+                y_min = y_min_strike - lower_pad
+                y_max = max(y) + upper_pad
+            fig.update_yaxes(range=[y_min, y_max])
         if x:
             fig.add_trace(go.Scatter(x=[x[0], x[-1]], y=[spot, spot], mode="lines", name="Spot", hoverinfo="skip"))
         fig.add_trace(go.Scatter(
@@ -90,7 +103,7 @@ def figure_html(inputs: Dict[str, Any], solutions: List[Dict[str, Any]]) -> str:
                                text=f"{s['strike']:.0f} ({s['atmPct']:+.2f}%)",
                                showarrow=True, arrowhead=2, ax=0, ay=-30, font=dict(size=11))
     fig.update_layout(
-        xaxis_title="Expiry", yaxis_title="Index Level",
+        xaxis_title="Expiry", yaxis_title="Price",
         hovermode="closest",
         margin=dict(l=60, r=20, t=10, b=50),
         paper_bgcolor="white", plot_bgcolor="white",
