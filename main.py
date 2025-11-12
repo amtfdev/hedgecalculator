@@ -81,11 +81,12 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
 def figure_html(inputs: Dict[str, Any], solutions: List[Dict[str, Any]]) -> str:
     fig = go.Figure()
     if solutions:
+        spot = _to_float(inputs.get("spot"))
         x_start = dt.date.today()
         x = [d for d in (_parse_expiry(s["expiry"]) for s in solutions)]
         x_end = max(x + [x_start])
+        fig.update_xaxes(range=[x_start, x_end], tickformat="%b %d\n%Y")
         y = [s["strike"] for s in solutions]
-        spot = _to_float(inputs.get("spot"))
         if y:
             y_min_strike = min(y)
             lower_pad = max(1.0, 0.01 * y_min_strike)
