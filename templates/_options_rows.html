@@ -11,7 +11,7 @@
             <th>Expiry</th>
             <th class="has-text-right">Strike</th>
             <th class="has-text-right">Ask</th>
-            <th class="has-text-right">Premium (auto)</th>
+            <th class="has-text-right">Fee / Lot</th>
             <th class="has-text-centered">Action</th>
           </tr>
         </thead>
@@ -21,7 +21,7 @@
             <td><input class="input" type="date" name="expiry[]" value="{{ o.expiry }}"></td>
             <td><input class="input has-text-right" type="number" step="0.01" name="strike[]" value="{{ o.strike if o.strike else '' }}"></td>
             <td><input class="input has-text-right" type="number" step="0.01" name="ask[]" value="{{ o.ask if o.ask else '' }}"></td>
-            <td><input class="input has-text-right" type="number" step="0.01" name="premium_display[]" readonly value="{{ '%.2f'|format(o.premium) if o.premium else '' }}"></td>
+            <td><input class="input has-text-right" type="number" step="0.01" name="fee_lot[]" readonly value="{{ '%.2f'|format(o.fee_lot) if o.fee_lot else '' }}"></td>
             <td class="has-text-centered">
               <button class="button is-small"
                 hx-post="/"
@@ -44,5 +44,38 @@
         hx-target="#options-rows-wrapper"
         hx-swap="outerHTML">+ Add Row</button>
     </div>
+  <div class="row header">
+    <div>Expiry</div>
+    <div>Strike</div>
+    <div>Ask</div>
+    <div>Fee / Lot</div>
+    <div></div>
+  </div>
+
+  <div id="options-rows">
+    {% for o in (options | default([])) %}
+      <div class="row opt">
+        <input type="date" name="expiry[]" value="{{ o.expiry }}"/>
+        <input type="number" step="0.01" name="strike[]" value="{{ '%.2f'|format(o.strike) if o.strike else '' }}"/>
+        <input type="number" step="0.01" name="ask[]" value="{{ '%.2f'|format(o.ask) if o.ask else '' }}"/>
+        <input type="number" step="0.01" name="fee_lot[]" readonly value="{{ '%.2f'|format(o.fee_lot) if o.fee_lot else '' }}"/>
+
+        <button class="secondary"
+          hx-post="/"
+          hx-include="#options-form"
+          hx-vals='{"action":"remove_row","row_index":"{{ loop.index0 }}"}'
+          hx-target="#options-rows-wrapper"
+          hx-swap="outerHTML">×</button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="margin-top:8px;">
+    <button class="secondary"
+      hx-post="/"
+      hx-include="#options-form"
+      hx-vals='{"action":"add_row"}'
+      hx-target="#options-rows-wrapper"
+      hx-swap="outerHTML">+ Add Row</button>
   </div>
 </div>
