@@ -26,18 +26,16 @@ def parse_options(form: Any) -> List[Dict[str, Any]]:
     exp = form.getlist("expiry[]")
     strike = form.getlist("strike[]")
     ask = form.getlist("ask[]")
+    fee_lot = form.getlist("fee_lot[]")
     options: List[Dict[str, Any]] = []
     n = max(len(exp), len(strike), len(ask))
     for i in range(n):
         e = exp[i] if i < len(exp) else ""
         k = _to_float(strike[i]) if i < len(strike) else 0.0
         a = _to_float(ask[i]) if i < len(ask) else 0.0
-        options.append({"expiry": e, "strike": k, "ask": a})
+        f = _to_float(fee_lot[i]) if i < len(fee_lot) else 0.0
+        options.append({"expiry": e, "strike": k, "ask": a, "fee_lot": f})
     return options
-
-def compute_premiums(options: List[Dict[str, Any]], multiplier: float) -> None:
-    for o in options:
-        o["premium"] = round((_to_float(o.get("ask")) * multiplier), 6) if multiplier else 0.0
 
 def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -48,25 +46,23 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
         if not o.get("expiry") or not _to_float(o.get("strike")):
             continue
         strike = _to_float(o["strike"])
-        premium = _to_float(o.get("premium"))
+        ask = _to_float(o["ask"])
+        fee_lot = _to_float(o["fee_lot"])
+        premium_contract = (ask * multiplier) if multiplier else 0.0
         per_contract_notional = strike * multiplier if multiplier else 0.0
         qty100 = (notional / per_contract_notional) if per_contract_notional else 0.0
-        qty50 = qty100 * 0.5
-        qty10 = qty100 * 0.1
-        cost100 = premium * qty100
-        cost50 = premium * qty50
-        cost10 = premium * qty10
+        cost100 = qty100(premium_contract + fee_lot)
         atmPct = ((strike - spot) / spot * 100) if spot else 0.0
         out.append({
             "expiry": o["expiry"],
             "strike": strike,
             "ask": _to_float(o.get("ask")),
-            "premium": premium,
+            "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": qty100, "qty50": qty50, "qty10": qty10,
+            "qty100": qty100,
             "qty100_floor": int(qty100 // 1),
             "qty100_ceil": int(qty100) + (0 if abs(qty100 - int(qty100)) < 1e-9 else 1),
-            "cost100": cost100, "cost50": cost50, "cost10": cost10,
+            "cost100": cost100,
             "atmPct": atmPct,
         })
     out.sort(key=lambda x: x["expiry"])
@@ -137,10 +133,9 @@ async def post_index(request: Request):
         "spot": form.get("spot", ""),
         "options": parse_options(form)
     }
-    compute_premiums(ctx["options"], _to_float(ctx["multiplier"]))
 
     if action == "add_row":
-        ctx["options"].append({"expiry": "", "strike": 0.0, "ask": 0.0, "premium": 0.0})
+        ctx["options"].append({"expiry": "", "strike": 0.0, "ask": 0.0, "fee_lot": 0.0})
         return render_rows(request, ctx)
 
     if action == "remove_row":
