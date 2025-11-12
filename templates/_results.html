@@ -9,7 +9,7 @@
     {% else %}
       <div class="content is-small">
         <p>
-          Notional: <strong>{{ inputs.currency }}{{ '{:,.0f}'.format((inputs.notional|float) if inputs.notional else 0) }}</strong>
+          Notional: <strong>{{ '{:,.0f}'.format((inputs.notional|float) if inputs.notional else 0) }} {{ inputs.currency }}</strong>
           &middot; Multiplier: <strong>{{ '{:,.0f}'.format((inputs.multiplier|float) if inputs.multiplier else 0) }}</strong>
           &middot; Spot: <strong>{{ '{:,.2f}'.format((inputs.spot|float) if inputs.spot else 0) }}</strong>
         </p>
@@ -37,8 +37,8 @@
               <td class="has-text-right">{{ '{:,.2f}'.format(s.ask) }}</td>
               <td class="has-text-right">{{ '{:,.2f}'.format(s.premium) }}</td>
               <td class="has-text-right">{{ '{:,.0f}'.format(s.per_contract_notional) }}</td>
-              <td class="has-text-right">{{ '{:,.2f}'.format(s.qty100) }}</td>
-              <td class="has-text-right">{{ inputs.currency }}{{ '{:,.2f}'.format(s.cost100) }}</td>
+              <td class="has-text-right">{{ '{:,.0f}'.format(s.qty100) }}</td>
+              <td class="has-text-right">{{ '{:,.2f}'.format(s.cost100) }} {{ inputs.currency }}</td>
               <td><span class="tag is-info is-light">{{ '%+.2f%%'|format(s.atmPct) }}</span></td>
             </tr>
             {% endfor %}
