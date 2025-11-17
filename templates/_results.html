@@ -37,8 +37,8 @@
               <td class="has-text-right">{{ '{:,.2f}'.format(s.ask) }}</td>
               <td class="has-text-right">{{ '{:,.2f}'.format(s.premium) }}</td>
               <td class="has-text-right">{{ '{:,.0f}'.format(s.per_contract_notional) }}</td>
-              <td class="has-text-right">{{ '{:,.0f}'.format(s.qty100) }}</td>
-              <td class="has-text-right">{{ '{:,.2f}'.format(s.cost100) }} {{ inputs.currency }}</td>
+              <td class="has-text-right">{{ '{:,.0f}'.format(s.qty) }}</td>
+              <td class="has-text-right">{{ '{:,.2f}'.format(s.cost) }} {{ inputs.currency }}</td>
               <td><span class="tag is-info is-light">{{ '%+.2f%%'|format(s.atmPct) }}</span></td>
             </tr>
             {% endfor %}
