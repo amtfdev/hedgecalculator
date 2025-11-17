@@ -70,8 +70,8 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
             "ask": _to_float(o.get("ask")),
             "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": qty,
-            "cost100": cost,
+            "qty": qty,
+            "cost": cost,
             "atmPct": atmPct,
         })
     out.sort(key=lambda x: x["expiry"])
