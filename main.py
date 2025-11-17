@@ -60,7 +60,7 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
         fee_lot = _to_float(o["fee_lot"])
         premium_contract = (ask * multiplier) if multiplier else 0.0
         per_contract_notional = strike * multiplier if multiplier else 0.0
-        qty100 = (notional / per_contract_notional) if per_contract_notional else 0.0
+        qty100 = (notional // per_contract_notional) if per_contract_notional else 0
         cost100 = qty100 * (premium_contract + fee_lot)
         atmPct = ((strike - spot) / spot * 100) if spot else 0.0
         out.append({
@@ -69,7 +69,7 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
             "ask": _to_float(o.get("ask")),
             "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": max(1, int(qty100 // 1)),
+            "qty100": qty100,
             "cost100": cost100,
             "atmPct": atmPct,
         })
