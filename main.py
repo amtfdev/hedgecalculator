@@ -50,6 +50,7 @@ def _parse_expiry(exp_str: str):
 def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     notional = _to_float(inputs.get("notional"))
+    perc_notional = _to_float(inputs.get("perc_notional"))
     spot = _to_float(inputs.get("spot"))
     multiplier = _to_float(inputs.get("multiplier"))
     for o in inputs["options"]:
@@ -60,8 +61,8 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
         fee_lot = _to_float(o["fee_lot"])
         premium_contract = (ask * multiplier) if multiplier else 0.0
         per_contract_notional = strike * multiplier if multiplier else 0.0
-        qty100 = (notional // per_contract_notional) if per_contract_notional else 0
-        cost100 = qty100 * (premium_contract + fee_lot)
+        qty = ((notional * (perc_notional / 100)) // per_contract_notional) if per_contract_notional else 0
+        cost = qty * (premium_contract + fee_lot)
         atmPct = ((strike - spot) / spot * 100) if spot else 0.0
         out.append({
             "expiry": o["expiry"],
@@ -69,8 +70,8 @@ def calc_solutions(inputs: Dict[str, Any]) -> List[Dict[str, Any]]:
             "ask": _to_float(o.get("ask")),
             "premium": premium_contract,
             "per_contract_notional": per_contract_notional,
-            "qty100": qty100,
-            "cost100": cost100,
+            "qty100": qty,
+            "cost100": cost,
             "atmPct": atmPct,
         })
     out.sort(key=lambda x: x["expiry"])
