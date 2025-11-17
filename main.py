@@ -128,6 +128,7 @@ def ctx_defaults():
         "index": "",
         "multiplier": "",
         "notional": "",
+        "perc_notional": "100",
         "spot": "",
         "options": [],
         "currencies": ["GBP", "USD", "EUR", "JPY", "CHF"]}
@@ -162,6 +163,7 @@ async def post_index(request: Request):
         "index": form.get("index", ""),
         "multiplier": form.get("multiplier", ""),
         "notional": form.get("notional", ""),
+        "perc_notional": form.get("perc_notional", "100"),
         "spot": form.get("spot", ""),
         "options": parse_options(form)
     }
